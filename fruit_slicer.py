@@ -255,7 +255,7 @@ def menu_main():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    play(player,difficulty)
+                    play(player,difficulty,gamemode)
                 if event.key == pygame.K_2:
                     menu_scores()
                 if event.key == pygame.K_3:
