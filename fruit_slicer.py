@@ -270,4 +270,4 @@ def menu_main():
         clock.tick(30)
 
 if __name__ == "__main__":
-    menu_main(
+    menu_main()
