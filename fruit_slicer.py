@@ -1,3 +1,9 @@
+# A rajouter :
+# fonction pour reset le score
+# potentiellement utilisé des class
+# ajouter son/bruitage
+
+
 import pygame, random, json, os
 
 file_scores = 'scores.json' #file with each player and their scores
@@ -5,8 +11,8 @@ file_scores = 'scores.json' #file with each player and their scores
 pygame.init()
 pygame.mixer.init()
 
-WIDTH = 700
-HEIGHT = 500
+WIDTH = 800
+HEIGHT = 600
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -14,7 +20,7 @@ RED = (255, 0, 0)
 FONT = pygame.font.Font(None, 40)
 
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("Fruit Sclicer")
+pygame.display.set_caption("Fruit Slicer")
 
 def text_display(text, x, y, color):
     text_render=FONT.render(text,True,color)
@@ -27,7 +33,7 @@ def menu_player(ready,current_player):
         text_display("Welcome, Please choose your Player Name",50,50,BLACK)
         text_display("Press 1 to choose from a known Player Name",50,100,BLACK)
         text_display("Press 2 to create a Player Name",50,150,BLACK)
-        text_display("Press ESCAPE if you want to keep your username",50,HEIGHT-50,BLACK)
+        text_display("Press ESCAPE if you want to keep your username",25,HEIGHT-50,BLACK)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -36,9 +42,13 @@ def menu_player(ready,current_player):
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    return menu_player_known()
+                    player=menu_player_known()
+                    if player:
+                        return player
                 elif event.key == pygame.K_2:
-                    return menu_player_new()
+                    player=menu_player_new()
+                    if player:
+                        return player                
                 if ready == 1:
                     if event.key == pygame.K_ESCAPE:
                         return current_player
@@ -112,6 +122,8 @@ def menu_player_new():
                     letter=event.unicode
                     if letter.isalpha():
                         player +=letter 
+                if event.key == pygame.K_ESCAPE:
+                    return
         clock.tick(30)
         
 def menu_player_add(player):
@@ -153,6 +165,7 @@ def menu_gamemode(ready,current_gamemode):
     screen.fill(WHITE)
     clock = pygame.time.Clock()
     while True:
+        screen.fill(WHITE)
         text_display("Please choose the gamemode",50,50,BLACK)
         text_display("Press 1 for mode.1",50,HEIGHT-200,BLACK)
         text_display("Press 2 for mode.2",50,HEIGHT-150,BLACK)
@@ -180,10 +193,11 @@ def menu_scores():
     screen.fill(WHITE)
     clock = pygame.time.Clock()
     scores = scores_load()
-    players_per_page = 2
+    players_per_page = 1
     current_page = 0
     total_pages = (len(scores)+players_per_page - 1) // players_per_page
     while True:
+        screen.fill(WHITE)
         text_display("Scores",50,50, BLACK)
         index_start = current_page * players_per_page
         index_end = index_start + players_per_page
@@ -193,12 +207,12 @@ def menu_scores():
             text_display(f"Player{player}",50,y_offset,BLACK)
             y_offset+=50
             for difficulte, player_scores in scores_difficulty.items():
-                text_display(f"Difficulty{difficulte}",70,y_offset,BLACK)
-                y_offset+=50
+                text_display(f"Difficulty : {difficulte}",70,y_offset,BLACK)
+                y_offset+=80
                 if player_scores:
-                    text_display(f"Highest Score :{max(player_scores)} points", 90,y_offset,BLACK)
+                    text_display(f"Highest Score : {max(player_scores)} points", 90,y_offset-40,BLACK)
                 else:
-                    text_display("No Score",90,y_offset,BLACK)
+                    text_display("No Score",90,y_offset-40,BLACK)
         text_display(f"Page{current_page+1}/{total_pages}",50,HEIGHT-200,BLACK)
         text_display("Press N to go to next page",50,HEIGHT-150,BLACK)
         text_display("Press P to go to previous page",50,HEIGHT-100,BLACK)
@@ -263,7 +277,7 @@ def menu_main():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    play(player,difficulty,gamemode)
+                    play(player, difficulty, gamemode, missed_fruits, player_score)
                 if event.key == pygame.K_2:
                     menu_scores()
                 if event.key == pygame.K_3:
@@ -320,19 +334,19 @@ def item_display():
         screen.blit(text, (fruit["x"] + 15, fruit["y"] + 15))  # Positionner la lettre
 
 # Vérifier si une touche correspond à un fruit
-def item_check(key):
-    global player_score, missed_fruits, fruits
-    for fruit in fruits:
-        if key == ord(fruit["letter"].lower()):  # Vérifie la touche
-            fruits.remove(fruit)
+def item_check(key, player_score, missed_fruits):
+    for item in fruits:
+        if key == ord(item["letter"].lower()):  # Vérifie la touche
+            fruits.remove(item)
             player_score += 1
-            return
-    missed_fruits += 1
+            return 
+        else:
+            missed_fruits += 1
 
 
 
 # Boucle principale du jeu
-def play(player, difficulty, gamemode):
+def play(player, difficulty, gamemode, missed_fruits, player_score):
     game_over = False
     while not game_over:
         screen.fill(WHITE)
