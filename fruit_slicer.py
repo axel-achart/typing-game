@@ -268,3 +268,6 @@ def menu_main():
                     pygame.quit()
                     return
         clock.tick(30)
+
+if __name__ == "__main__":
+    menu_main(
