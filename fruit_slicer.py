@@ -27,11 +27,21 @@ clock = pygame.time.Clock()   # Contrôle la vitesse de la boucle du jeu
 
 # Charger une image pour les fruits
 fruit_pictures = {
-    "apple":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\apple.png"),
-    "banana":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\banana.png"),
-    "pear":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\pear.png"),
-    "watermelon":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\watermelon.png")
+    "apple":pygame.image.load(r"typing-game\Fruits\apple.png"),
+    "banana":pygame.image.load(r"typing-game\Fruits\banana.png"),
+    "pear":pygame.image.load(r"typing-game\Fruits\pear.png"),
+    "watermelon":pygame.image.load(r"typing-game\Fruits\watermelon.png"),
+    "bomb":pygame.image.load(r"typing-game\Fruits\bomb.png"),
+    "ice":pygame.image.load(r"typing-game\Fruits\ice.png")
 }
+
+# Charger les sons
+try:
+    sound_menu = pygame.mixer.Sound(r"typing-game\sounds\menu.mp3")
+    sound_play = pygame.mixer.Sound(r"typing-game\sounds\play.mp3")
+except pygame.error as e:
+    sound_menu = None
+    sound_play = None
 
 # Redimensionner les images des fruits 50x50
 for key in fruit_pictures:
@@ -39,6 +49,8 @@ for key in fruit_pictures:
 
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Fruit Slicer")
+
+
 
 def text_display(text, x, y, color):
     text_render=FONT.render(text,True,color)
@@ -113,6 +125,11 @@ def menu_player_known():
                         if index_end<len(players):
                             current_page+=1                   
             clock.tick(30)
+    else:
+        text_display("No player found",250,250,BLACK)
+        pygame.display.flip()
+        pygame.time.wait(1500)
+        return
     
 def menu_player_new():
     screen.fill(WHITE)
@@ -216,13 +233,13 @@ def menu_scores():
     total_pages = (len(scores)+players_per_page - 1) // players_per_page
     while True:
         screen.fill(WHITE)
-        text_display("Scores",50,50, BLACK)
+        text_display("Scoreboard",50,50, BLACK)
         index_start = current_page * players_per_page
         index_end = index_start + players_per_page
         players_list = list(scores.items())[index_start:index_end]
         y_offset = 100
         for player, scores_difficulty in players_list:
-            text_display(f"Player{player}",50,y_offset,BLACK)
+            text_display(f"Player : {player}",50,y_offset,BLACK)
             y_offset+=50
             for difficulte, player_scores in scores_difficulty.items():
                 text_display(f"Difficulty : {difficulte}",70,y_offset,BLACK)
@@ -231,9 +248,10 @@ def menu_scores():
                     text_display(f"Highest Score : {max(player_scores)} points", 90,y_offset-40,BLACK)
                 else:
                     text_display("No Score",90,y_offset-40,BLACK)
-        text_display(f"Page{current_page+1}/{total_pages}",50,HEIGHT-200,BLACK)
-        text_display("Press N to go to next page",50,HEIGHT-150,BLACK)
+        text_display(f"Page{current_page+1}/{total_pages}",50,HEIGHT-150,BLACK)
+        text_display("Press N to go to next page",50,HEIGHT-125,BLACK)
         text_display("Press P to go to previous page",50,HEIGHT-100,BLACK)
+        text_display("Press R to reset scoreboard",50,HEIGHT-75,BLACK)
         text_display("Press ESCAPE if you want to keep your username",50,HEIGHT-50,BLACK)
         pygame.display.flip()
 
@@ -249,9 +267,12 @@ def menu_scores():
                     if index_end<len(scores):
                         current_page+=1          
                 elif event.key == pygame.K_3:
-                    return                
+                    return
                 if event.key == pygame.K_ESCAPE:
                     return
+                if event.key == pygame.K_r:
+                    scores_reset()
+                    return      # return to menu after reset
         clock.tick(30)
         
 def scores_load():
@@ -272,6 +293,11 @@ def scores_save(player, score, difficulty):
         scores[player][difficulty]=[score]
     with open(file_scores,"w") as f:
         json.dump(scores,f,indent=4)
+
+# Reset the scores
+def scores_reset():
+    with open(file_scores,"w") as f:
+        f.write("{}")
     
 def menu_main():
     player = menu_player(0,0)
@@ -344,6 +370,10 @@ def item_check(key, player_score, missed_fruits):
 
 # Boucle principale du jeu
 def play(player, difficulty, gamemode, missed_fruits, player_score):
+    if sound_menu:
+        sound_menu.stop()
+        if sound_play:
+            sound_play.play(-1)
     game_over = False
     while not game_over:
         screen.fill(WHITE)
@@ -391,4 +421,6 @@ def play(player, difficulty, gamemode, missed_fruits, player_score):
         clock.tick(30)
 
 if __name__ == "__main__":
+    if sound_menu:
+        sound_menu.play(-1)
     menu_main()
