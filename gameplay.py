@@ -1,52 +1,3 @@
-import pygame
-import random
-import sys
-import math
-
-# -------------------------------------------- Configurations de la fenêtre --------------------------------------------#
-pygame.init()
-
-# Dimensions de la fenêtre
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 720
-
-# Couleurs
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-
-# Création de la fenêtre
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Fruit Slicer")
-clock = pygame.time.Clock()
-
-# Charger les images des fruits et bombes
-FRUIT_IMAGES = {
-    "apple": pygame.image.load(r"typing-game\media\img\apple.png"),
-    "banana": pygame.image.load(r"typing-game\media\img\banana.png"),
-    "pear": pygame.image.load(r"typing-game\media\img\pear.png"),
-    "watermelon": pygame.image.load(r"typing-game\media\img\watermelon.png"),
-    "bomb": pygame.image.load(r"typing-game\media\img\bomb.png"),
-    "ice": pygame.image.load(r"typing-game\media\img\ice.png")
-}
-
-# Charger l'image de fond
-BACKGROUND_IMAGE = pygame.image.load(r"typing-game\media\img\background.jpg")
-BACKGROUND_IMAGE = pygame.transform.scale(BACKGROUND_IMAGE, (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-# Redimensionner les images à 80x80 dans le dict FRUIT_IMAGES
-for key in FRUIT_IMAGES:
-    FRUIT_IMAGES[key] = pygame.transform.scale(FRUIT_IMAGES[key], (80, 80))
-
-# Police et texte
-font = pygame.font.Font(None, 36)
-
-# Charger les sons
-pygame.mixer.init()
-SLICE_SOUND = pygame.mixer.Sound(r"typing-game\media\sounds\slice_sound.mp3")
-BOMB_SOUND = pygame.mixer.Sound(r"typing-game\media\sounds\bomb_sound.mp3")
-ICE_SOUND = pygame.mixer.Sound(r"typing-game\media\sounds\ice_sound.mp3")
-
-
 class FruitSlicerGame:
     def __init__(self):
         self.fruits = []  # Liste des fruits actifs à l'écran
@@ -63,8 +14,8 @@ class FruitSlicerGame:
         
         for _ in range(count):
             # Position initiale du fruit
-            spawn_x = random.randint(100, SCREEN_WIDTH - 100)
-            spawn_y = SCREEN_HEIGHT - 150  # Les fruits apparaissent encore plus haut
+            spawn_x = random.randint(100, WIDTH - 100)
+            spawn_y = HEIGHT - 150  # Les fruits apparaissent encore plus haut
             
             # Lettre associée au fruit
             assigned_letter = chr(random.randint(65, 90))
@@ -105,7 +56,7 @@ class FruitSlicerGame:
             fruit["rotation_angle"] += fruit["rotation_speed"]
             
             # Supprime les fruits qui sortent de l'écran par le bas
-            if fruit["position_y"] > SCREEN_HEIGHT + 100:
+            if fruit["position_y"] > HEIGHT + 100:
                 self.missed_fruits += 1
             else:
                 active_fruits.append(fruit)
@@ -141,7 +92,43 @@ class FruitSlicerGame:
 
 
 # Initialisation du jeu
+game = FruitSlicerGame()
+
+while not game.game_over:
+    # Dessiner l'arrière-plan
+    screen.blit(BACKGROUND_IMAGE, (0, 0))
+
+    # Gérer les événements
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game.game_over = True
+        if event.type == pygame.KEYDOWN:
+            game.check_key_press(event.key)
+
+    # Ajouter des fruits périodiquement
+    if random.random() < 0.03:
+        game.spawn_fruit(count=random.randint(1, 2))
+
+    # Mettre à jour et dessiner les fruits
+    game.update_fruits()
+    game.draw_fruits()
+
+    # Afficher le score et les fruits manqués
+    score_text = font.render(f"Score: {game.player_score}", True, BLACK)
+    screen.blit(score_text, (10, 10))
+    missed_text = font.render(f"Missed: {game.missed_fruits}", True, BLACK)
+    screen.blit(missed_text, (10, 40))
+
+    # Vérifier si la partie est terminée
+    if game.missed_fruits > game.player_score:
+        game_over_text = font.render("Game Over!", True, BLACK)
+        screen.blit(game_over_text, (WIDTH // 2 - 100, HEIGHT // 2))
+        pygame.display.flip()
+        pygame.time.wait(2000)
+        game.game_over = True
+
+    pygame.display.flip()
+    clock.tick(30)
 
 
-# Arrêter la musique de fond à la fin du jeu
 pygame.quit()
