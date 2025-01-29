@@ -7,8 +7,8 @@ import math
 pygame.init()
 
 # Dimensions de la fenêtre
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 720
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 # Couleurs
 WHITE = (255, 255, 255)
@@ -21,16 +21,16 @@ clock = pygame.time.Clock()
 
 # Charger les images des fruits et bombes
 FRUIT_IMAGES = {
-    "apple": pygame.image.load(r"typing-game\media\img\apple.png"),
-    "banana": pygame.image.load(r"typing-game\media\img\banana.png"),
-    "pear": pygame.image.load(r"typing-game\media\img\pear.png"),
-    "watermelon": pygame.image.load(r"typing-game\media\img\watermelon.png"),
-    "bomb": pygame.image.load(r"typing-game\media\img\bomb.png"),
-    "ice": pygame.image.load(r"typing-game\media\img\ice.png")
+    "apple": pygame.image.load(r"media\img\apple.png"),
+    "banana": pygame.image.load(r"media\img\banana.png"),
+    "pear": pygame.image.load(r"media\img\pear.png"),
+    "watermelon": pygame.image.load(r"media\img\watermelon.png"),
+    "bomb": pygame.image.load(r"media\img\bomb.png"),
+    "ice": pygame.image.load(r"media\img\ice.png")
 }
 
 # Charger l'image de fond
-BACKGROUND_IMAGE = pygame.image.load(r"typing-game\media\img\background.jpg")
+BACKGROUND_IMAGE = pygame.image.load(r"media\img\background.jpg")
 BACKGROUND_IMAGE = pygame.transform.scale(BACKGROUND_IMAGE, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Redimensionner les images à 80x80 dans le dict FRUIT_IMAGES
@@ -42,10 +42,9 @@ font = pygame.font.Font(None, 36)
 
 # Charger les sons
 pygame.mixer.init()
-SLICE_SOUND = pygame.mixer.Sound(r"typing-game\media\sounds\slice_sound.mp3")
-BOMB_SOUND = pygame.mixer.Sound(r"typing-game\media\sounds\bomb_sound.mp3")
-ICE_SOUND = pygame.mixer.Sound(r"typing-game\media\sounds\ice_sound.mp3")
-
+SLICE_SOUND = pygame.mixer.Sound(r"media\sounds\slice_sound.mp3")
+BOMB_SOUND = pygame.mixer.Sound(r"media\sounds\bomb_sound.mp3")
+ICE_SOUND = pygame.mixer.Sound(r"media\sounds\ice_sound.mp3")
 
 class FruitSlicerGame:
     def __init__(self):
@@ -139,9 +138,45 @@ class FruitSlicerGame:
             text = font.render(fruit["letter"], True, BLACK)
             screen.blit(text, (fruit["position_x"] + 25, fruit["position_y"] + 25))  # Ajustement de la position du texte
 
+    def run(self):
+        while not self.game_over:
+            # Dessiner l'arrière-plan
+            screen.blit(BACKGROUND_IMAGE, (0, 0))
 
-# Initialisation du jeu
+            # Gérer les événements
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.game_over = True
+                if event.type == pygame.KEYDOWN:
+                    self.check_key_press(event.key)
 
+            # Ajouter des fruits périodiquement
+            if random.random() < 0.03:
+                self.spawn_fruit(count=random.randint(1, 2))
 
-# Arrêter la musique de fond à la fin du jeu
-pygame.quit()
+            # Mettre à jour et dessiner les fruits
+            self.update_fruits()
+            self.draw_fruits()
+
+            # Afficher le score et les fruits manqués
+            score_text = font.render(f"Score: {self.player_score}", True, BLACK)
+            screen.blit(score_text, (10, 10))
+            missed_text = font.render(f"Missed: {self.missed_fruits}", True, BLACK)
+            screen.blit(missed_text, (10, 40))
+
+            # Vérifier si la partie est terminée
+            if self.missed_fruits > self.player_score:
+                game_over_text = font.render("Game Over!", True, BLACK)
+                screen.blit(game_over_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2))
+                pygame.display.flip()
+                pygame.time.wait(2000)
+                self.game_over = True
+
+            pygame.display.flip()
+            clock.tick(30)
+
+        pygame.quit()
+
+if __name__ == "__main__":
+    game = FruitSlicerGame()
+    game.run()
