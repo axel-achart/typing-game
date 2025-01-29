@@ -47,6 +47,7 @@ except pygame.error as e:
 for key in fruit_pictures:
     fruit_pictures[key] = pygame.transform.scale(fruit_pictures[key], (50, 50))
 
+# Initialisation Window
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Fruit Slicer")
 
