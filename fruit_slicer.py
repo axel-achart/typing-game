@@ -19,6 +19,24 @@ RED = (255, 0, 0)
 
 FONT = pygame.font.Font(None, 40)
 
+# Variables de jeu
+fruits = []
+player_score = 0
+missed_fruits = 0
+clock = pygame.time.Clock()   # Contrôle la vitesse de la boucle du jeu
+
+# Charger une image pour les fruits
+fruit_pictures = {
+    "apple":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\apple.png"),
+    "banana":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\banana.png"),
+    "pear":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\pear.png"),
+    "watermelon":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice\typing-game\Fruits\watermelon.png")
+}
+
+# Redimensionner les images des fruits 50x50
+for key in fruit_pictures:
+    fruit_pictures[key] = pygame.transform.scale(fruit_pictures[key], (50, 50))
+
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Fruit Slicer")
 
@@ -291,25 +309,6 @@ def menu_main():
                     return
         clock.tick(30)
 
-
-# Variables de jeu
-fruits = []
-player_score = 0
-missed_fruits = 0
-clock = pygame.time.Clock()   # Contrôle la vitesse de la boucle du jeu
-
-# Charger une image pour les fruits
-fruit_pictures = {
-    "apple":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice (ft. Kyllian, Hippolyte)\typing-game\Fruits\apple.png"),
-    "banana":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice (ft. Kyllian, Hippolyte)\typing-game\Fruits\banana.png"),
-    "pear":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice (ft. Kyllian, Hippolyte)\typing-game\Fruits\pear.png"),
-    "watermelon":pygame.image.load(r"C:\Users\axela\Desktop\LaPlateforme\Projets Ecole\AI\Projet 4 - Fruit Ninja Slice (ft. Kyllian, Hippolyte)\typing-game\Fruits\watermelon.png")
-}
-
-# Redimensionner les images des fruits 50x50
-for key in fruit_pictures:
-    fruit_pictures[key] = pygame.transform.scale(fruit_pictures[key], (50, 50))
-
 # Générer des fruits
 def generate_item(count = 1):
     types_of_fruits = list(fruit_pictures.keys())
@@ -342,8 +341,6 @@ def item_check(key, player_score, missed_fruits):
             return 
         else:
             missed_fruits += 1
-
-
 
 # Boucle principale du jeu
 def play(player, difficulty, gamemode, missed_fruits, player_score):
