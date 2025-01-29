@@ -1,9 +1,3 @@
-# A rajouter :
-# fonction pour reset le score
-# potentiellement utilisé des class
-# ajouter son/bruitage
-
-
 import pygame, random, json, os
 
 file_scores = 'scores.json' #file with each player and their scores
@@ -23,33 +17,31 @@ FONT = pygame.font.Font(None, 40)
 fruits = []
 player_score = 0
 missed_fruits = 0
+# Initialisation Window
+screen = pygame.display.set_mode((WIDTH,HEIGHT))
+pygame.display.set_caption("Fruit Slicer")
+
 clock = pygame.time.Clock()   # Contrôle la vitesse de la boucle du jeu
 
 # Charger une image pour les fruits
-fruit_pictures = {
-    "apple":pygame.image.load(r"typing-game\Fruits\apple.png"),
-    "banana":pygame.image.load(r"typing-game\Fruits\banana.png"),
-    "pear":pygame.image.load(r"typing-game\Fruits\pear.png"),
-    "watermelon":pygame.image.load(r"typing-game\Fruits\watermelon.png"),
-    "bomb":pygame.image.load(r"typing-game\Fruits\bomb.png"),
-    "ice":pygame.image.load(r"typing-game\Fruits\ice.png")
+fruit_images = {
+    "apple":pygame.image.load(r"typing-game\media\img\apple.png"),
+    "banana":pygame.image.load(r"typing-game\media\img\banana.png"),
+    "pear":pygame.image.load(r"typing-game\media\img\pear.png"),
+    "watermelon":pygame.image.load(r"typing-game\media\img\watermelon.png"),
 }
 
 # Charger les sons
 try:
-    sound_menu = pygame.mixer.Sound(r"typing-game\sounds\menu.mp3")
-    sound_play = pygame.mixer.Sound(r"typing-game\sounds\play.mp3")
+    sound_menu = pygame.mixer.Sound(r"typing-game\media\sounds\menu.mp3")
+    sound_play = pygame.mixer.Sound(r"typing-game\media\sounds\play.mp3")
 except pygame.error as e:
     sound_menu = None
     sound_play = None
 
 # Redimensionner les images des fruits 50x50
-for key in fruit_pictures:
-    fruit_pictures[key] = pygame.transform.scale(fruit_pictures[key], (50, 50))
-
-# Initialisation Window
-screen = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("Fruit Slicer")
+for key in fruit_images:
+    fruit_images[key] = pygame.transform.scale(fruit_images[key], (70, 70))
 
 
 
@@ -338,7 +330,7 @@ def menu_main():
 
 # Générer des fruits
 def generate_item(count = 1):
-    types_of_fruits = list(fruit_pictures.keys())
+    types_of_fruits = list(fruit_images.keys())
     for _ in range(count):
         x = random.randint(0, WIDTH - 50)    # Coordonnée x aléatoire
         y = random.randint(50, HEIGHT - 50)  # Coordonnée y aléatoire
@@ -349,7 +341,7 @@ def generate_item(count = 1):
             "x": x, 
             "y": y, 
             "letter": letter,
-            "image": fruit_pictures[fruit_type]  # Associer l'image correspondante
+            "image": fruit_images[fruit_type]  # Associer l'image correspondante
         })
 
 # Dessiner les fruits
@@ -370,58 +362,24 @@ def item_check(key, player_score, missed_fruits):
             missed_fruits += 1
 
 # Boucle principale du jeu
-def play(player, difficulty, gamemode, missed_fruits, player_score):
+def play():
     if sound_menu:
         sound_menu.stop()
         if sound_play:
             sound_play.play(-1)
-    game_over = False
-    while not game_over:
-        screen.fill(WHITE)
+    
+    import gameplay     # Game Launch
 
-        
-        # Gérer les événements
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-            if event.type == pygame.KEYDOWN:
-                item_check(event.key)
-        
-        # Ajouter des fruits périodiquement
-        if random.random() < 0.03:  # Probabilité d'apparition
-            generate_item(count=random.randint(1, 3))
-        
-        # Dessiner les fruits
-        item_display()
-        
-        # Afficher le player
-        player_text = FONT.render(f"player : {player}", True, BLACK)
-        screen.blit(player_text, (10, 10))
-
-        # Afficher la difficulté
-        difficulty_text = FONT.render(f"difficulté : {difficulty}", True, BLACK)
-        screen.blit(difficulty_text, (10, 40))
-
-        # Afficher le player_score
-        player_score_text = FONT.render(f"player_score: {player_score}", True, BLACK)
-        screen.blit(player_score_text, (10, 70))
-        
-        # Afficher les strikes
-        missed_fruits_text = FONT.render(f"missed_fruits: {missed_fruits}", True, BLACK)
-        screen.blit(missed_fruits_text, (10, 100))
-        
-        # Vérifier si la partie est perdue
-        if missed_fruits >= 3:
-            game_over_text = FONT.render("Game Over!", True, BLACK)
-            screen.blit(game_over_text, (WIDTH // 2 - 100, HEIGHT // 2))
-            pygame.display.flip()
-            pygame.time.wait(2000)
-            game_over = True
-        
-        pygame.display.flip()
-        clock.tick(30)
+    screen.fill(WHITE)
+    return
+    
+    
+    
 
 if __name__ == "__main__":
     if sound_menu:
         sound_menu.play(-1)
     menu_main()
+
+
+    
