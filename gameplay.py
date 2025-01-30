@@ -187,11 +187,11 @@ class FruitSlicerGame:
             # Afficher le score et les fruits manqués
             score_text = font.render(f"Score of {player}: {self.player_score}", True, BLACK)
             screen.blit(score_text, (10, 10))
-            missed_text = font.render(f"Missed: {self.missed_fruits}", True, BLACK)
+            missed_text = font.render(f"Strike: {self.missed_fruits}", True, BLACK)
             screen.blit(missed_text, (10, 40))
 
             # Vérifier si la partie est terminée
-            if self.missed_fruits > self.player_score:
+            if self.missed_fruits > 3:
                 game_over_text = font.render("Game Over!", True, BLACK)
                 screen.blit(game_over_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2))
                 pygame.display.flip()
