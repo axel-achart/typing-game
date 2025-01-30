@@ -7,8 +7,8 @@ import math
 pygame.init()
 
 # Dimensions de la fenêtre
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 720
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 # Couleurs
 WHITE = (255, 255, 255)
@@ -46,7 +46,7 @@ font = pygame.font.Font(None, 36)
 
 # Charger les sons
 pygame.mixer.init()
-pygame.mixer.music.set_volume(2)
+BACKGROUND_MUSIC = pygame.mixer.Sound(r"media\sounds\background_music.mp3")
 SLICE_SOUND = pygame.mixer.Sound(r"media\sounds\slice_sound.mp3")
 BOMB_SOUND = pygame.mixer.Sound(r"media\sounds\bomb_sound.mp3")
 ICE_SOUND = pygame.mixer.Sound(r"media\sounds\ice_sound.mp3")
@@ -211,7 +211,10 @@ class FruitSlicerGame:
 
             pygame.display.flip()
             clock.tick(30)
-        return self.player_score
+
+        # Arrêter la musique de fond à la fin du jeu
+        BACKGROUND_MUSIC.stop()
+        pygame.quit()
 
 if __name__ == "__main__":
     game = FruitSlicerGame()
