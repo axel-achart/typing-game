@@ -54,8 +54,12 @@ class FruitSlicerGame:
         self.missed_fruits = 0  # Nombre de fruits manqués
         self.game_over = False  # État du jeu
         self.angle = 0  # Angle de rotation (non utilisé actuellement)
+        self.is_frozen = False  # Indique si le jeu est gelé
+        self.freeze_end_time = 0  # Temps où le gel doit se terminer
 
     def spawn_fruit(self, count=1):
+        if not self.is_frozen and random.random() < 0.03:
+            self.spawn_fruit(count=random.randint(1, 2))
         # Liste des fruits normaux
         NORMAL_FRUITS = ["apple", "banana", "pear", "watermelon"]
         # Liste des objets spéciaux (bombe et glacon)
@@ -94,6 +98,9 @@ class FruitSlicerGame:
             })
 
     def update_fruits(self):
+        if self.is_frozen:
+            return # Ne pas mettre à jour les fruits si le jeu est gelé
+        
         active_fruits = []
         for fruit in self.fruits:
             # Mise à jour de la position
@@ -105,7 +112,7 @@ class FruitSlicerGame:
             fruit["rotation_angle"] += fruit["rotation_speed"]
             
             # Supprime les fruits qui sortent de l'écran par le bas
-            if fruit["position_y"] > SCREEN_HEIGHT + 100:
+            if fruit["position_y"] > SCREEN_HEIGHT + 50:
                 self.missed_fruits += 1
             else:
                 active_fruits.append(fruit)
@@ -126,6 +133,8 @@ class FruitSlicerGame:
                 elif fruit["image"] == FRUIT_IMAGES["ice"]:
                     self.player_score += 10
                     ICE_SOUND.play()
+                    self.is_frozen = True
+                    self.freeze_end_time = pygame.time.get_ticks() + 5000  # Gel pendant 5 secondes
                 else:
                     self.player_score += 5
                     SLICE_SOUND.play()
@@ -168,6 +177,10 @@ class FruitSlicerGame:
             screen.blit(score_text, (10, 10))
             missed_text = font.render(f"Missed: {self.missed_fruits}", True, BLACK)
             screen.blit(missed_text, (10, 40))
+
+            # Reprise du jeu après le gel
+            if self.is_frozen and pygame.time.get_ticks() > self.freeze_end_time:
+                self.is_frozen = False
 
             # Vérifier si la partie est terminée
             if self.missed_fruits > self.player_score:
