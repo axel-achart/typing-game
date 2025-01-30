@@ -314,7 +314,7 @@ def menu_main():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    play(player, difficulty, gamemode, missed_fruits, player_score)
+                    play(difficulty,player)
                 if event.key == pygame.K_2:
                     menu_scores()
                 if event.key == pygame.K_3:
@@ -362,13 +362,13 @@ def item_check(key, player_score, missed_fruits):
             missed_fruits += 1
 
 # Boucle principale du jeu
-def play(player, difficulty, gamemode, missed_fruits, player_score):
+def play(difficulty,player):
     if sound_menu:
         sound_menu.stop()
         if sound_play:
             sound_play.play(-1)
-    game = FruitSlicerGame()
-    game.run()
+    game = FruitSlicerGame(difficulty,player)
+    game.run(difficulty,player)
 
     screen.fill(WHITE)
     return

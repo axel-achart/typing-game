@@ -48,19 +48,40 @@ BOMB_SOUND = pygame.mixer.Sound(r"media\sounds\bomb_sound.mp3")
 ICE_SOUND = pygame.mixer.Sound(r"media\sounds\ice_sound.mp3")
 
 class FruitSlicerGame:
-    def __init__(self):
+    def __init__(self, difficulty, player):
         self.fruits = []  # Liste des fruits actifs à l'écran
         self.player_score = 0  # Score du joueur
         self.missed_fruits = 0  # Nombre de fruits manqués
         self.game_over = False  # État du jeu
         self.angle = 0  # Angle de rotation (non utilisé actuellement)
+        self.difficulty = difficulty
+        self.player = player
 
-    def spawn_fruit(self, count=1):
+    def get_fruit_rates(self,difficulty):
+        if difficulty == 'easy':
+            return 0.9
+        if difficulty == 'medium':
+            return 0.8
+        if difficulty == 'hard':
+            return 0.7
+        return 0.9
+
+    def difficulty_rates(self,difficulty):
+        if difficulty == 'easy':
+            return 0.03
+        if difficulty == 'medium':
+            return 0.1
+        if difficulty == 'hard':
+            return 0.2
+        return 0.03
+
+    def spawn_fruit(self, difficulty, count=1):
         # Liste des fruits normaux
         NORMAL_FRUITS = ["apple", "banana", "pear", "watermelon"]
         # Liste des objets spéciaux (bombe et glacon)
         SPECIAL_OBJECTS = ["bomb", "ice"]
-        
+        difficulty = self.difficulty
+        fruit_spawn_rate = self.get_fruit_rates(difficulty)
         for _ in range(count):
             # Position initiale du fruit
             spawn_x = random.randint(100, SCREEN_WIDTH - 100)
@@ -70,7 +91,7 @@ class FruitSlicerGame:
             assigned_letter = chr(random.randint(65, 90))
             
             # Choix du type de fruit avec probabilité réduite pour les objets spéciaux
-            if random.random() < 0.9:  # 90% de chance d'avoir un fruit normal
+            if random.random() < fruit_spawn_rate:  # 90% de chance d'avoir un fruit normal
                 fruit_type = random.choice(NORMAL_FRUITS)
             else:
                 fruit_type = random.choice(SPECIAL_OBJECTS)
@@ -139,9 +160,12 @@ class FruitSlicerGame:
             text = font.render(fruit["letter"], True, BLACK)
             screen.blit(text, (fruit["position_x"] + 25, fruit["position_y"] + 25))  # Ajustement de la position du texte
 
-    def run(self):
+
+    
+    def run(self,difficulty,player):
         BACKGROUND_MUSIC.play(-1)
         while not self.game_over:
+            spawn_rate = self.difficulty_rates(difficulty)
             # Dessiner l'arrière-plan
             screen.blit(BACKGROUND_IMAGE, (0, 0))
 
@@ -153,15 +177,15 @@ class FruitSlicerGame:
                     self.check_key_press(event.key)
 
             # Ajouter des fruits périodiquement
-            if random.random() < 0.03:
-                self.spawn_fruit(count=random.randint(1, 2))
+            if random.random() < spawn_rate:
+                self.spawn_fruit(difficulty,count=random.randint(1, 2))
 
             # Mettre à jour et dessiner les fruits
             self.update_fruits()
             self.draw_fruits()
 
             # Afficher le score et les fruits manqués
-            score_text = font.render(f"Score: {self.player_score}", True, BLACK)
+            score_text = font.render(f"Score of {player}: {self.player_score}", True, BLACK)
             screen.blit(score_text, (10, 10))
             missed_text = font.render(f"Missed: {self.missed_fruits}", True, BLACK)
             screen.blit(missed_text, (10, 40))
