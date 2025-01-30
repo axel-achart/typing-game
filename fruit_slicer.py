@@ -1,12 +1,12 @@
 import pygame, random, json, os
-from gameplay import FruitSlicerGame
+
 file_scores = 'scores.json' #file with each player and their scores
 
 pygame.init()
 pygame.mixer.init()
 
-WIDTH = 1200
-HEIGHT =  720
+WIDTH = 800
+HEIGHT = 600
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -25,16 +25,16 @@ clock = pygame.time.Clock()   # Contrôle la vitesse de la boucle du jeu
 
 # Charger une image pour les fruits
 fruit_images = {
-    "apple":pygame.image.load(r"media\img\apple.png"),
-    "banana":pygame.image.load(r"media\img\banana.png"),
-    "pear":pygame.image.load(r"media\img\pear.png"),
-    "watermelon":pygame.image.load(r"media\img\watermelon.png"),
+    "apple":pygame.image.load(r"typing-game\media\img\apple.png"),
+    "banana":pygame.image.load(r"typing-game\media\img\banana.png"),
+    "pear":pygame.image.load(r"typing-game\media\img\pear.png"),
+    "watermelon":pygame.image.load(r"typing-game\media\img\watermelon.png"),
 }
 
 # Charger les sons
 try:
-    sound_menu = pygame.mixer.Sound(r"media\sounds\menu.mp3")
-    sound_play = pygame.mixer.Sound(r"media\sounds\play.mp3")
+    sound_menu = pygame.mixer.Sound(r"typing-game\media\sounds\menu.mp3")
+    sound_play = pygame.mixer.Sound(r"typing-game\media\sounds\play.mp3")
 except pygame.error as e:
     sound_menu = None
     sound_play = None
@@ -276,6 +276,16 @@ def scores_load():
             return json.load(f)
     except json.JSONDecodeError:
         return {}
+    
+def scores_save(player, score, difficulty):
+    screen.fill(WHITE)
+    scores = scores_load()
+    if player not in scores:
+        scores[player] = {"easy":[], "medium":[], "hard":[]}
+    if not scores[player][difficulty] or score > max(scores[player][difficulty]):
+        scores[player][difficulty]=[score]
+    with open(file_scores,"w") as f:
+        json.dump(scores,f,indent=4)
 
 # Reset the scores
 def scores_reset():
@@ -304,7 +314,7 @@ def menu_main():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    play(player, difficulty)
+                    play(player, difficulty, gamemode, missed_fruits, player_score)
                 if event.key == pygame.K_2:
                     menu_scores()
                 if event.key == pygame.K_3:
@@ -351,38 +361,15 @@ def item_check(key, player_score, missed_fruits):
         else:
             missed_fruits += 1
 
-# Function to save score from the game
-def save_scores(player, difficulty, player_score):
-    scores = scores_load()
-
-    # Vérifier si le joueur existe déjà
-    if player not in scores:
-        scores[player] = {"easy": 0, "medium": 0, "hard": 0}
-
-    # integrate scores in the scoreboard
-    if player in scores:
-        if player_score > max(scores[player][difficulty], default=0):
-            scores[player][difficulty] = [player_score]  # Remplace la liste par un seul élément
-
-    with open(file_scores,"w") as f:
-        json.dump(scores,f,indent=4)
-
 # Boucle principale du jeu
-def play(player, difficulty):
+def play():
     if sound_menu:
         sound_menu.stop()
         if sound_play:
             sound_play.play(-1)
+    
+    import gameplay     # Game Launch
 
-    game = FruitSlicerGame(difficulty,player)
-    final_score = game.run(difficulty,player)  # Récupère le score final
-
-    save_scores(player, difficulty, final_score)  # Enregistre le score
-
-    if sound_play:
-        sound_play.stop()
-        if sound_menu:
-            sound_menu.play(-1)
     screen.fill(WHITE)
     return
     
