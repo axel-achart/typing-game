@@ -33,6 +33,10 @@ FRUIT_IMAGES = {
 BACKGROUND_IMAGE = pygame.image.load(r"media\img\background.jpg")
 BACKGROUND_IMAGE = pygame.transform.scale(BACKGROUND_IMAGE, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# Charger l'image de l'explosion
+EXPLOSION_IMAGE = pygame.image.load(r"media\img\explosion.png")
+EXPLOSION_IMAGE = pygame.transform.scale(EXPLOSION_IMAGE, (80, 80))  # Redimensionner l'explosion
+
 # Redimensionner les images à 80x80 dans le dict FRUIT_IMAGES
 for key in FRUIT_IMAGES:
     FRUIT_IMAGES[key] = pygame.transform.scale(FRUIT_IMAGES[key], (80, 80))
@@ -48,7 +52,7 @@ BOMB_SOUND = pygame.mixer.Sound(r"media\sounds\bomb_sound.mp3")
 ICE_SOUND = pygame.mixer.Sound(r"media\sounds\ice_sound.mp3")
 
 class FruitSlicerGame:
-    def __init__(self):
+    def __init__(self, difficulty, player):
         self.fruits = []  # Liste des fruits actifs à l'écran
         self.player_score = 0  # Score du joueur
         self.missed_fruits = 0  # Nombre de fruits manqués
@@ -56,9 +60,31 @@ class FruitSlicerGame:
         self.angle = 0  # Angle de rotation (non utilisé actuellement)
         self.is_frozen = False  # Indique si le jeu est gelé
         self.freeze_end_time = 0  # Temps où le gel doit se terminer
+        self.difficulty = difficulty
+        self.player = player
 
-    def spawn_fruit(self, count=1):
-        if not self.is_frozen and random.random() < 0.03:
+    def get_fruit_rates(self,difficulty):
+        if difficulty == 'easy':
+            return 0.9
+        if difficulty == 'medium':
+            return 0.8
+        if difficulty == 'hard':
+            return 0.7
+        return 0.9
+    def difficulty_rates(self,difficulty):
+        if difficulty == 'easy':
+            return 0.03
+        if difficulty == 'medium':
+            return 0.1
+        if difficulty == 'hard':
+            return 0.2
+        return 0.03
+
+
+    def spawn_fruit(self,difficulty, count=1):
+        difficulty = self.difficulty
+        fruit_spawn_rate = self.get_fruit_rates(difficulty)
+        if not self.is_frozen and random.random() < fruit_spawn_rate:
             self.spawn_fruit(count=random.randint(1, 2))
         # Liste des fruits normaux
         NORMAL_FRUITS = ["apple", "banana", "pear", "watermelon"]
@@ -74,7 +100,7 @@ class FruitSlicerGame:
             assigned_letter = chr(random.randint(65, 90))
             
             # Choix du type de fruit avec probabilité réduite pour les objets spéciaux
-            if random.random() < 0.9:  # 90% de chance d'avoir un fruit normal
+            if random.random() < fruit_spawn_rate:  # 90% de chance d'avoir un fruit normal
                 fruit_type = random.choice(NORMAL_FRUITS)
             else:
                 fruit_type = random.choice(SPECIAL_OBJECTS)
@@ -138,6 +164,12 @@ class FruitSlicerGame:
                 else:
                     self.player_score += 5
                     SLICE_SOUND.play()
+                    # Ajouter une explosion à la position du fruit
+                    self.explosions.append({
+                        "position_x": fruit["position_x"],
+                        "position_y": fruit["position_y"],
+                        "start_time": pygame.time.get_ticks()
+                    })
             else:
                 remaining_fruits.append(fruit)
         self.fruits = remaining_fruits
@@ -152,11 +184,19 @@ class FruitSlicerGame:
             text = font.render(fruit["letter"], True, BLACK)
             screen.blit(text, (fruit["position_x"] + 25, fruit["position_y"] + 25))  # Ajustement de la position du texte
         
-    def run(self):
+        # Dessiner les explosions
+        current_time = pygame.time.get_ticks()
+        for explosion in self.explosions[:]:
+            if current_time - explosion["start_time"] < 300:  # Afficher l'explosion pendant 300 ms
+                screen.blit(EXPLOSION_IMAGE, (explosion["position_x"], explosion["position_y"]))
+            else:
+                self.explosions.remove(explosion)  # Supprimer l'explosion après 300 ms
+        
+    def run(self, difficulty, player):
         while not self.game_over:
             # Dessiner l'arrière-plan
             screen.blit(BACKGROUND_IMAGE, (0, 0))
-
+            spawn_rate = self.difficulty_rates(difficulty)
             # Gérer les événements
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -164,18 +204,17 @@ class FruitSlicerGame:
                 if event.type == pygame.KEYDOWN:
                     self.check_key_press(event.key)
 
-            # Ajouter des fruits périodiquement
-            if random.random() < 0.03:
-                self.spawn_fruit(count=random.randint(1, 2))
+            if random.random() < spawn_rate:
+                self.spawn_fruit(difficulty,count=random.randint(1, 2))
 
             # Mettre à jour et dessiner les fruits
             self.update_fruits()
             self.draw_fruits()
 
             # Afficher le score et les fruits manqués
-            score_text = font.render(f"Score: {self.player_score}", True, BLACK)
+            score_text = font.render(f"Score of {player}: {self.player_score}", True, BLACK)
             screen.blit(score_text, (10, 10))
-            missed_text = font.render(f"Missed: {self.missed_fruits}", True, BLACK)
+            missed_text = font.render(f"Strike: {self.missed_fruits}", True, BLACK)
             screen.blit(missed_text, (10, 40))
 
             # Reprise du jeu après le gel
@@ -183,7 +222,7 @@ class FruitSlicerGame:
                 self.is_frozen = False
 
             # Vérifier si la partie est terminée
-            if self.missed_fruits > self.player_score:
+            if self.missed_fruits > 3:
                 game_over_text = font.render("Game Over!", True, BLACK)
                 screen.blit(game_over_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2))
                 pygame.display.flip()
