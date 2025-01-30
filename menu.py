@@ -72,9 +72,8 @@ def menu_player(ready,current_player):
                     player=menu_player_new()
                     if player:
                         return player                
-                if ready == 1:
-                    if event.key == pygame.K_ESCAPE:
-                        return current_player
+                elif event.key == pygame.K_ESCAPE:
+                    return current_player
         clock.tick(30)
 
 def menu_player_known():
@@ -184,9 +183,8 @@ def menu_difficulty(ready,current_difficulty):
                     return 'medium'
                 elif event.key == pygame.K_3:
                     return 'hard'
-                if ready == 1:
-                    if event.key == pygame.K_ESCAPE:
-                        return current_difficulty
+                elif event.key == pygame.K_ESCAPE:
+                    return current_difficulty
         clock.tick(30)
 
 def menu_gamemode(ready,current_gamemode):
@@ -212,9 +210,8 @@ def menu_gamemode(ready,current_gamemode):
                     return 'mode.2'
                 elif event.key == pygame.K_3:
                     return 'mode.3'
-                if ready == 1:
-                    if event.key == pygame.K_ESCAPE:
-                        return current_gamemode
+                elif event.key == pygame.K_ESCAPE:
+                    return current_gamemode
         clock.tick(30)
 
 def menu_scores():
@@ -276,16 +273,6 @@ def scores_load():
             return json.load(f)
     except json.JSONDecodeError:
         return {}
-    
-def scores_save(player, score, difficulty):
-    screen.fill(WHITE)
-    scores = scores_load()
-    if player not in scores:
-        scores[player] = {"easy":[], "medium":[], "hard":[]}
-    if not scores[player][difficulty] or score > max(scores[player][difficulty]):
-        scores[player][difficulty]=[score]
-    with open(file_scores,"w") as f:
-        json.dump(scores,f,indent=4)
 
 # Reset the scores
 def scores_reset():
@@ -314,7 +301,7 @@ def menu_main():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    play(difficulty,player)
+                    play(player, difficulty, gamemode, missed_fruits, player_score)
                 if event.key == pygame.K_2:
                     menu_scores()
                 if event.key == pygame.K_3:
@@ -361,15 +348,38 @@ def item_check(key, player_score, missed_fruits):
         else:
             missed_fruits += 1
 
+# Function to save score from the game
+def save_scores(player, difficulty, player_score):
+    scores = scores_load()
+
+    # Vérifier si le joueur existe déjà
+    if player not in scores:
+        scores[player] = {"easy": 0, "medium": 0, "hard": 0}
+
+    # integrate scores in the scoreboard
+    if player in scores:
+        if player_score > max(scores[player][difficulty], default=0):
+            scores[player][difficulty] = [player_score]  # Remplace la liste par un seul élément
+
+    with open(file_scores,"w") as f:
+        json.dump(scores,f,indent=4)
+
 # Boucle principale du jeu
-def play(difficulty,player):
+def play(player, difficulty, gamemode, missed_fruits, player_score):
     if sound_menu:
         sound_menu.stop()
         if sound_play:
             sound_play.play(-1)
-    game = FruitSlicerGame(difficulty,player)
-    game.run(difficulty,player)
 
+    game = FruitSlicerGame()
+    final_score = game.run()  # Récupère le score final
+
+    save_scores(player, difficulty, final_score)  # Enregistre le score
+
+    if sound_play:
+        sound_play.stop()
+        if sound_menu:
+            sound_menu.play(-1)
     screen.fill(WHITE)
     return
     
