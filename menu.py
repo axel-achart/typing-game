@@ -1,29 +1,37 @@
+# Importing Libraries
 import pygame, random, json, os
 from gameplay import FruitSlicerGame
-file_scores = 'scores.json' #file with each player and their scores
 
+# Join file scores.json
+file_scores = 'scores.json'
+
+# Initialisation PyGame
 pygame.init()
 pygame.mixer.init()
+clock = pygame.time.Clock()
 
-WIDTH = 1200
-HEIGHT =  720
+# Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
+# Window Dimension
+WIDTH = 800
+HEIGHT =  600
+
+# Font and text
 FONT = pygame.font.Font(None, 40)
 
-# Variables de jeu
+# Variables
 fruits = []
 player_score = 0
 missed_fruits = 0
+
 # Initialisation Window
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Fruit Slicer")
 
-clock = pygame.time.Clock()   # Contrôle la vitesse de la boucle du jeu
-
-# Charger une image pour les fruits
+# Fruits loading
 fruit_images = {
     "apple":pygame.image.load(r"media\img\apple.png"),
     "banana":pygame.image.load(r"media\img\banana.png"),
@@ -31,7 +39,7 @@ fruit_images = {
     "watermelon":pygame.image.load(r"media\img\watermelon.png"),
 }
 
-# Charger les sons
+# Sounds loading
 try:
     sound_menu = pygame.mixer.Sound(r"media\sounds\menu.mp3")
     sound_play = pygame.mixer.Sound(r"media\sounds\play.mp3")
@@ -39,16 +47,16 @@ except pygame.error as e:
     sound_menu = None
     sound_play = None
 
-# Redimensionner les images des fruits 50x50
+# Resize images fruits
 for key in fruit_images:
     fruit_images[key] = pygame.transform.scale(fruit_images[key], (70, 70))
 
-
-
+# Function to display text
 def text_display(text, x, y, color):
     text_render=FONT.render(text,True,color)
     screen.blit(text_render,(x,y))
 
+# Function to ask player
 def menu_player(ready,current_player):
     clock = pygame.time.Clock()
     while True:
@@ -77,6 +85,7 @@ def menu_player(ready,current_player):
                         return current_player
         clock.tick(30)
 
+# Function to choose a player from the list
 def menu_player_known():
     screen.fill(WHITE)
     clock = pygame.time.Clock()
@@ -123,7 +132,8 @@ def menu_player_known():
         pygame.display.flip()
         pygame.time.wait(1500)
         return
-    
+
+# Function to create a new player
 def menu_player_new():
     screen.fill(WHITE)
     clock = pygame.time.Clock()
@@ -153,7 +163,8 @@ def menu_player_new():
                 if event.key == pygame.K_ESCAPE:
                     return
         clock.tick(30)
-        
+
+# Function to add a player in scores.json
 def menu_player_add(player):
     screen.fill(WHITE)
     scores = scores_load()
@@ -162,6 +173,7 @@ def menu_player_add(player):
     with open(file_scores, "w") as f:
         json.dump(scores, f, indent=4)
 
+# Function to choose the difficulty
 def menu_difficulty(ready,current_difficulty):
     screen.fill(WHITE)
     clock = pygame.time.Clock()
@@ -189,6 +201,7 @@ def menu_difficulty(ready,current_difficulty):
                         return current_difficulty
         clock.tick(30)
 
+# Function to choose the gamemode
 def menu_gamemode(ready,current_gamemode):
     screen.fill(WHITE)
     clock = pygame.time.Clock()
@@ -217,6 +230,7 @@ def menu_gamemode(ready,current_gamemode):
                         return current_gamemode
         clock.tick(30)
 
+# Function to display the scoreboard
 def menu_scores():
     screen.fill(WHITE)
     clock = pygame.time.Clock()
@@ -265,9 +279,10 @@ def menu_scores():
                     return
                 if event.key == pygame.K_r:
                     scores_reset()
-                    return      # return to menu after reset
+                    return
         clock.tick(30)
-        
+
+# Load the scores from the file
 def scores_load():
     if not os.path.exists(file_scores):
         return {}
@@ -282,6 +297,7 @@ def scores_reset():
     with open(file_scores,"w") as f:
         f.write("{}")
     
+# Main menu
 def menu_main():
     player = menu_player(0,0)
     gamemode = menu_gamemode(0,0)
@@ -318,33 +334,33 @@ def menu_main():
                     return
         clock.tick(30)
 
-# Générer des fruits
+# Fruits generate
 def generate_item(count = 1):
     types_of_fruits = list(fruit_images.keys())
     for _ in range(count):
-        x = random.randint(0, WIDTH - 50)    # Coordonnée x aléatoire
-        y = random.randint(50, HEIGHT - 50)  # Coordonnée y aléatoire
-        letter = chr(random.randint(65, 90))  # Lettre aléatoire (A-Z)
-        fruit_type = random.choice(types_of_fruits)  # Choisir un fruit aléatoire
+        x = random.randint(0, WIDTH - 50)
+        y = random.randint(50, HEIGHT - 50)
+        letter = chr(random.randint(65, 90))
+        fruit_type = random.choice(types_of_fruits)
 
         fruits.append({
             "x": x, 
             "y": y, 
             "letter": letter,
-            "image": fruit_images[fruit_type]  # Associer l'image correspondante
+            "image": fruit_images[fruit_type]
         })
 
-# Dessiner les fruits
+# Draw the fruits
 def item_display():
     for fruit in fruits:
-        screen.blit(fruit["image"], (fruit["x"], fruit["y"]))  # Dessiner l'image du fruit
-        text = FONT.render(fruit["letter"], True, BLACK)  # Afficher la lettre
-        screen.blit(text, (fruit["x"] + 15, fruit["y"] + 15))  # Positionner la lettre
+        screen.blit(fruit["image"], (fruit["x"], fruit["y"]))
+        text = FONT.render(fruit["letter"], True, BLACK)
+        screen.blit(text, (fruit["x"] + 15, fruit["y"] + 15))
 
-# Vérifier si une touche correspond à un fruit
+# Check the key pressed
 def item_check(key, player_score, missed_fruits):
     for item in fruits:
-        if key == ord(item["letter"].lower()):  # Vérifie la touche
+        if key == ord(item["letter"].lower()):
             fruits.remove(item)
             player_score += 1
             return 
@@ -355,19 +371,18 @@ def item_check(key, player_score, missed_fruits):
 def save_scores(player, difficulty, player_score):
     scores = scores_load()
 
-    # Vérifier si le joueur existe déjà
+    # Check if the player is in the scoreboard
     if player not in scores:
         scores[player] = {"easy": 0, "medium": 0, "hard": 0}
 
-    # integrate scores in the scoreboard
+    # Integrate the score if it is higher than the previous one
     if player in scores:
         if player_score > max(scores[player][difficulty], default=0):
-            scores[player][difficulty] = [player_score]  # Remplace la liste par un seul élément
-
+            scores[player][difficulty] = [player_score]
     with open(file_scores,"w") as f:
         json.dump(scores,f,indent=4)
 
-# Boucle principale du jeu
+# Function to play the game
 def play(player, difficulty):
     if sound_menu:
         sound_menu.stop()
@@ -375,9 +390,10 @@ def play(player, difficulty):
             sound_play.play(-1)
 
     game = FruitSlicerGame(difficulty,player)
-    final_score = game.run(difficulty,player)  # Récupère le score final
+    final_score = game.run(difficulty,player)
 
-    save_scores(player, difficulty, final_score)  # Enregistre le score
+    # Save the score
+    save_scores(player, difficulty, final_score)
 
     if sound_play:
         sound_play.stop()
@@ -386,13 +402,8 @@ def play(player, difficulty):
     screen.fill(WHITE)
     return
     
-    
-    
 
 if __name__ == "__main__":
     if sound_menu:
         sound_menu.play(-1)
     menu_main()
-
-
-    
