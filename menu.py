@@ -72,8 +72,9 @@ def menu_player(ready,current_player):
                     player=menu_player_new()
                     if player:
                         return player                
-                elif event.key == pygame.K_ESCAPE:
-                    return current_player
+                if ready == 1:
+                    if event.key == pygame.K_ESCAPE:
+                        return current_player
         clock.tick(30)
 
 def menu_player_known():
@@ -183,8 +184,9 @@ def menu_difficulty(ready,current_difficulty):
                     return 'medium'
                 elif event.key == pygame.K_3:
                     return 'hard'
-                elif event.key == pygame.K_ESCAPE:
-                    return current_difficulty
+                if ready == 1:
+                    if event.key == pygame.K_ESCAPE:
+                        return current_difficulty
         clock.tick(30)
 
 def menu_gamemode(ready,current_gamemode):
@@ -210,8 +212,9 @@ def menu_gamemode(ready,current_gamemode):
                     return 'mode.2'
                 elif event.key == pygame.K_3:
                     return 'mode.3'
-                elif event.key == pygame.K_ESCAPE:
-                    return current_gamemode
+                if ready == 1:
+                    if event.key == pygame.K_ESCAPE:
+                        return current_gamemode
         clock.tick(30)
 
 def menu_scores():
@@ -301,7 +304,7 @@ def menu_main():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    play(player, difficulty, gamemode, missed_fruits, player_score)
+                    play(player, difficulty)
                 if event.key == pygame.K_2:
                     menu_scores()
                 if event.key == pygame.K_3:
@@ -365,14 +368,14 @@ def save_scores(player, difficulty, player_score):
         json.dump(scores,f,indent=4)
 
 # Boucle principale du jeu
-def play(player, difficulty, gamemode, missed_fruits, player_score):
+def play(player, difficulty):
     if sound_menu:
         sound_menu.stop()
         if sound_play:
             sound_play.play(-1)
 
-    game = FruitSlicerGame()
-    final_score = game.run()  # Récupère le score final
+    game = FruitSlicerGame(difficulty,player)
+    final_score = game.run(difficulty,player)  # Récupère le score final
 
     save_scores(player, difficulty, final_score)  # Enregistre le score
 
