@@ -79,7 +79,7 @@ def menu_player(ready,current_player):
                 elif event.key == pygame.K_2:
                     player=menu_player_new()
                     if player:
-                        return player                
+                        return player   
                 if ready == 1:
                     if event.key == pygame.K_ESCAPE:
                         return current_player

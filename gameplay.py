@@ -260,6 +260,8 @@ class FruitSlicerGame:
             # After freeze, the game is no longer frozen
             if self.is_frozen and pygame.time.get_ticks() > self.freeze_end_time:
                 self.is_frozen = False
+                if ICE_SOUND:
+                        ICE_SOUND.stop()
 
             # Check if the game is over
             if self.missed_fruits >= 3:
@@ -272,6 +274,9 @@ class FruitSlicerGame:
             pygame.display.flip()
             clock.tick(30)
         return self.player_score
+    
+    if ICE_SOUND:
+        ICE_SOUND.stop()
 
 if __name__ == "__main__":
     game = FruitSlicerGame()
