@@ -1,4 +1,7 @@
 # Importing Libraries
+from email.mime import image
+from importlib.machinery import FrozenImporter
+from multiprocessing.reduction import duplicate
 import pygame
 import random
 
@@ -49,6 +52,7 @@ font = pygame.font.Font(None, 36)
 SLICE_SOUND = pygame.mixer.Sound(r"media\sounds\slice_sound.mp3")
 BOMB_SOUND = pygame.mixer.Sound(r"media\sounds\bomb_sound.mp3")
 ICE_SOUND = pygame.mixer.Sound(r"media\sounds\ice_sound.mp3")
+COMBO_SOUND = pygame.mixer.Sound(r"media\sounds\combo_sound.mp3")
 
 # Class of the game
 class FruitSlicerGame:
@@ -128,6 +132,15 @@ class FruitSlicerGame:
                 "rotation_angle": 0,
                 "rotation_speed": random.uniform(-5, 5)
             })
+    def find_duplicate_letters(self):
+        letter_count = {}
+        for fruit in self.fruits:
+            letter = fruit["letter"].lower()
+            if letter in letter_count:
+                letter_count[letter] += 1
+            else:
+                letter_count[letter] = 1
+        return letter_count
 
     # Function to update the fruits
     def update_fruits(self):
@@ -156,11 +169,20 @@ class FruitSlicerGame:
 
         self.fruits = active_fruits
 
+
+
     # Function to check the key press
     def check_key_press(self, key):
         remaining_fruits = []
+        combo_letters = self.find_duplicate_letters()
         for fruit in self.fruits:
             if key == ord(fruit["letter"].lower()):
+                letter = fruit["letter"].lower()
+                if letter in combo_letters and combo_letters[letter] > 1:
+                    COMBO_SOUND.play()
+                    text = font.render(f"Combo! x{combo_letters[letter]}", True, BLACK)
+                    screen.blit(text,(fruit["position_x"]+50, fruit["position_y"]+50))
+                    self.player_score += combo_letters[letter]-1
                 # If it's a bomb, the game is over
                 if fruit["image"] == FRUIT_IMAGES["bomb"]:
                     BOMB_SOUND.play()
@@ -184,6 +206,7 @@ class FruitSlicerGame:
                         "position_y": fruit["position_y"],
                         "start_time": pygame.time.get_ticks()
                     })
+            
             else:
                 remaining_fruits.append(fruit)
         self.fruits = remaining_fruits
