@@ -54,6 +54,8 @@ ICE_SOUND = pygame.mixer.Sound(r"media\sounds\ice_sound.mp3")
 class FruitSlicerGame:
     # Initialisation
     def __init__(self, difficulty, player):
+        self.last_spawn_time = 0
+        self.spawn_delay = 1
         self.fruits = []
         self.explosions = []
         self.player_score = 0
@@ -78,19 +80,20 @@ class FruitSlicerGame:
     # Function to get the difficulty rates
     def difficulty_rates(self,difficulty):
         if difficulty == 'easy':
-            return 0.03
+            return 0.05
         if difficulty == 'medium':
-            return 0.1
+            return 0.04
         if difficulty == 'hard':
-            return 0.2
-        return 0.03
+            return 0.03
+        return 0.05
 
     # Function to spawn the fruit
     def spawn_fruit(self,difficulty, count=1):
         difficulty = self.difficulty
-        fruit_spawn_rate = self.get_fruit_rates(difficulty)
+        fruit_spawn_rate = self.difficulty_rates(difficulty)
+        special_spawn_rates = self.get_fruit_rates(difficulty)
         if not self.is_frozen and random.random() < fruit_spawn_rate:
-            self.spawn_fruit(count=random.randint(1, 2))
+            self.spawn_fruit(difficulty, count=random.randint(1, 2))
         NORMAL_FRUITS = ["apple", "banana", "pear", "watermelon"]
         SPECIAL_OBJECTS = ["bomb", "ice"]
         
@@ -103,15 +106,15 @@ class FruitSlicerGame:
             assigned_letter = chr(random.randint(65, 90))
             
             # Type of fruit
-            if random.random() < fruit_spawn_rate:
+            if random.random() < special_spawn_rates:
                 fruit_type = random.choice(NORMAL_FRUITS)
             else:
                 fruit_type = random.choice(SPECIAL_OBJECTS)
             
             # Initial speed
             horizontal_speed = random.uniform(-4, 4)
-            vertical_speed = random.uniform(-18, -12)
-            gravity = 0.5
+            vertical_speed = random.uniform(-12, -8)
+            gravity = 0.3
             
             # Add the fruit to the list
             self.fruits.append({
@@ -233,7 +236,7 @@ class FruitSlicerGame:
                 self.is_frozen = False
 
             # Check if the game is over
-            if self.missed_fruits > 3:
+            if self.missed_fruits >= 3:
                 game_over_text = font.render("Game Over !", True, BLACK)
                 screen.blit(game_over_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2))
                 pygame.display.flip()
