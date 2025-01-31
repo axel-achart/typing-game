@@ -93,7 +93,7 @@ class FruitSlicerGame:
         fruit_spawn_rate = self.difficulty_rates(difficulty)
         special_spawn_rates = self.get_fruit_rates(difficulty)
         if not self.is_frozen and random.random() < fruit_spawn_rate:
-            self.spawn_fruit(difficulty, count=random.randint(1, 2))
+            self.spawn_fruit(difficulty, count=1)
         NORMAL_FRUITS = ["apple", "banana", "pear", "watermelon"]
         SPECIAL_OBJECTS = ["bomb", "ice"]
         
@@ -147,7 +147,10 @@ class FruitSlicerGame:
             
             # Delete fruits that are out of the screen
             if fruit["position_y"] > SCREEN_HEIGHT + 50:
-                self.missed_fruits += 1
+                if fruit["image"] == FRUIT_IMAGES["bomb"]:
+                    pass
+                else:
+                    self.missed_fruits += 1
             else:
                 active_fruits.append(fruit)
 
@@ -218,8 +221,8 @@ class FruitSlicerGame:
                     self.check_key_press(event.key)
 
             # Generate new fruits
-            if random.random() < spawn_rate:
-                self.spawn_fruit(difficulty,count=random.randint(1, 2))
+            if not self.is_frozen and random.random() < spawn_rate:
+                self.spawn_fruit(difficulty,count=1)
 
             # Update annd draw the fruits
             self.update_fruits()
