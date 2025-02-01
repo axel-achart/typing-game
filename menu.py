@@ -299,6 +299,7 @@ def scores_reset():
     
 # Main menu
 def menu_main():
+    play('tuto','tuto')
     player = menu_player(0,0)
     gamemode = menu_gamemode(0,0)
     difficulty = menu_difficulty(0,0)
@@ -371,8 +372,8 @@ def item_check(key, player_score, missed_fruits):
 def save_scores(player, difficulty, player_score):
     scores = scores_load()
 
-    # Check if the player is in the scoreboard
-    if player not in scores:
+    # Check if the player is in the scoreboard and it's not the tuto
+    if player not in scores and player!='tuto':
         scores[player] = {"easy": 0, "medium": 0, "hard": 0}
 
     # Integrate the score if it is higher than the previous one

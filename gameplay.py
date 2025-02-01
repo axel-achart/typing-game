@@ -226,8 +226,22 @@ class FruitSlicerGame:
             else:
                 self.explosions.remove(explosion)  # Remove explosion after 300 ms
 
+    def tuto(self):
+        screen.blit(BACKGROUND_IMAGE, (0,0))
+        self.spawn_fruit('easy',3)
+        while True:
+            for fruit in self.fruits: 
+                while fruit["speed_y"]!=0:
+                    screen.blit(BACKGROUND_IMAGE, (0,0))
+                    self.update_fruits()
+                    self.draw_fruits()
+                    pygame.display.flip()
+            screen.blit(BACKGROUND_IMAGE, (0,0))
     # Function to run the game
     def run(self, difficulty, player):
+        if difficulty == 'tuto':
+            self.tuto()
+
         while not self.game_over:
             # Background
             screen.blit(BACKGROUND_IMAGE, (0, 0))
