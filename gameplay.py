@@ -1,7 +1,3 @@
-# Importing Libraries
-from email.mime import image
-from importlib.machinery import FrozenImporter
-from multiprocessing.reduction import duplicate
 import pygame
 import random
 
@@ -80,7 +76,7 @@ class FruitSlicerGame:
         if difficulty == 'hard':
             return 0.7
         return 0.9
-    
+
     # Function to get the difficulty rates
     def difficulty_rates(self,difficulty):
         if difficulty == 'easy':
@@ -100,26 +96,26 @@ class FruitSlicerGame:
             self.spawn_fruit(difficulty, count=1)
         NORMAL_FRUITS = ["apple", "banana", "pear", "watermelon"]
         SPECIAL_OBJECTS = ["bomb", "ice"]
-        
+
         for _ in range(count):
             # Initial position
             spawn_x = random.randint(200, SCREEN_WIDTH - 200)
             spawn_y = SCREEN_HEIGHT - 150
-            
+
             # Letter associated with the fruit
             assigned_letter = chr(random.randint(65, 90))
-            
+
             # Type of fruit
             if random.random() < special_spawn_rates:
                 fruit_type = random.choice(NORMAL_FRUITS)
             else:
                 fruit_type = random.choice(SPECIAL_OBJECTS)
-            
+
             # Initial speed
             horizontal_speed = random.uniform(-4, 4)
             vertical_speed = random.uniform(-12, -8)
             gravity = 0.3
-            
+
             # Add the fruit to the list
             self.fruits.append({
                 "position_x": spawn_x,
@@ -146,7 +142,7 @@ class FruitSlicerGame:
     def update_fruits(self):
         if self.is_frozen:
             return # Fruits no update when it's freeze
-        
+
         active_fruits = [] # Fruits that are still on the screen
 
         for fruit in self.fruits:
@@ -154,10 +150,10 @@ class FruitSlicerGame:
             fruit["position_x"] += fruit["speed_x"]
             fruit["position_y"] += fruit["speed_y"]
             fruit["speed_y"] += fruit["gravity"]
-            
+
             # Rotation of the fruit
             fruit["rotation_angle"] += fruit["rotation_speed"]
-            
+
             # Delete fruits that are out of the screen
             if fruit["position_y"] > SCREEN_HEIGHT + 50:
                 if fruit["image"] == FRUIT_IMAGES["bomb"]:
@@ -206,7 +202,7 @@ class FruitSlicerGame:
                         "position_y": fruit["position_y"],
                         "start_time": pygame.time.get_ticks()
                     })
-            
+
             else:
                 remaining_fruits.append(fruit)
         self.fruits = remaining_fruits
@@ -217,11 +213,11 @@ class FruitSlicerGame:
             # Rotation of the fruit
             rotated_image = pygame.transform.rotate(fruit["image"], fruit["rotation_angle"])
             new_rect = rotated_image.get_rect(center=fruit["image"].get_rect(topleft=(fruit["position_x"], fruit["position_y"])).center)
-            
+
             screen.blit(rotated_image, new_rect.topleft)
             text = font.render(fruit["letter"], True, BLACK)
             screen.blit(text, (fruit["position_x"] + 25, fruit["position_y"] + 25))
-        
+
         # Draw the explosions
         current_time = pygame.time.get_ticks()
         for explosion in self.explosions[:]:
@@ -229,7 +225,7 @@ class FruitSlicerGame:
                 screen.blit(EXPLOSION_IMAGE, (explosion["position_x"], explosion["position_y"]))
             else:
                 self.explosions.remove(explosion)  # Remove explosion after 300 ms
-    
+
     # Function to run the game
     def run(self, difficulty, player):
         while not self.game_over:
@@ -280,4 +276,3 @@ class FruitSlicerGame:
 
 if __name__ == "__main__":
     game = FruitSlicerGame()
-    game.run()
