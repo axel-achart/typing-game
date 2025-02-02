@@ -1,5 +1,9 @@
+from time import sleep
+import time
 import pygame
 import random
+
+import tuto
 
 # Initialisation PyGame
 pygame.init()
@@ -66,6 +70,7 @@ class FruitSlicerGame:
         self.freeze_end_time = 0
         self.difficulty = difficulty
         self.player = player
+        self.tuto_freeze = False
 
     # Function to get the fruit rates
     def get_fruit_rates(self,difficulty):
@@ -75,6 +80,8 @@ class FruitSlicerGame:
             return 0.8
         if difficulty == 'hard':
             return 0.7
+        if difficulty == 'tuto':
+            return 1
         return 0.9
 
     # Function to get the difficulty rates
@@ -140,7 +147,7 @@ class FruitSlicerGame:
 
     # Function to update the fruits
     def update_fruits(self):
-        if self.is_frozen:
+        if self.is_frozen or self.tuto_freeze:
             return # Fruits no update when it's freeze
 
         active_fruits = [] # Fruits that are still on the screen
@@ -226,22 +233,89 @@ class FruitSlicerGame:
             else:
                 self.explosions.remove(explosion)  # Remove explosion after 300 ms
 
-    def tuto(self):
+    def tuto_fruit(self):
         screen.blit(BACKGROUND_IMAGE, (0,0))
-        self.spawn_fruit('easy',3)
-        while True:
-            for fruit in self.fruits: 
-                while fruit["speed_y"]!=0:
-                    screen.blit(BACKGROUND_IMAGE, (0,0))
-                    self.update_fruits()
-                    self.draw_fruits()
-                    pygame.display.flip()
+        self.spawn_fruit('tuto',1)
+        while self.fruits:
             screen.blit(BACKGROUND_IMAGE, (0,0))
+            self.update_fruits()
+            self.draw_fruits()
+            pygame.display.flip()
+            for fruit in self.fruits:
+                if fruit["speed_y"] == 0:
+                    self.tuto_freeze = True
+                    while self.fruits:
+                        tuto_fruit_text = font.render("Here is a fruit, Press the according letter to slash it !", True, BLACK)
+                        screen.blit(tuto_fruit_text, (400, 300))
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                self.game_over = True
+                            if event.type == pygame.KEYDOWN:
+                                self.check_key_press(event.key)
+                        pygame.display.flip()
+
+    def tuto_strike(self):
+        tuto_run = True
+        screen.blit(BACKGROUND_IMAGE, (0,0))
+        self.spawn_fruit('tuto',1)
+        while tuto_run:
+            screen.blit(BACKGROUND_IMAGE, (0,0))
+            self.update_fruits()
+            self.draw_fruits()
+            pygame.display.flip()
+            if self.missed_fruits == 1 and not self.fruits:
+                tuto_strike_text = font.render("If you miss a fruit, it's going to be considered as strike", True, BLACK)
+                screen.blit(tuto_strike_text, (400, 300))
+                pygame.display.flip()
+                time.sleep(1)
+                self.spawn_fruit('tuto',2)
+            if self.missed_fruits > 2:
+                tuto_strike_text2 = font.render("When you reach 3 strikes, it's Game Over", True, BLACK)
+                screen.blit(tuto_strike_text2, (400, 300))
+                pygame.display.flip()
+                time.sleep(3)
+                tuto_run = False
+
+    def tuto_combo(self):
+        screen.blit(BACKGROUND_IMAGE, (0,0))
+        self.spawn_fruit('tuto',3)
+        for fruit in self.fruits:
+            fruit["letter"] = 'a'
+        while self.fruits:
+            screen.blit(BACKGROUND_IMAGE, (0,0))
+            self.update_fruits()
+            self.draw_fruits()
+            pygame.display.flip()
+            if fruit["speed_y"] == 0:
+                self.tuto_freeze = True
+                tuto_combo_text = font.render("Sometimes, fruits will have the same letter !", True, BLACK)
+                screen.blit(tuto_combo_text, (400, 300))
+                pygame.display.flip()
+                time.sleep(3)
+                tuto_combo_text = font.render("If you slash them, you will do a combo !", True, BLACK)
+                screen.blit(tuto_combo_text, (400, 300))
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.game_over = True
+                    if event.type == pygame.KEYDOWN:
+                        self.check_key_press(event.key)
+                pygame.display.flip()
+        screen.blit(BACKGROUND_IMAGE,(0,0))
+        pygame.display.flip()
+    
+    def tuto_ice(self):
+        screen.blit(BACKGROUND_IMAGE, (0,0))
+        self.spawn_fruit('tuto',3)
+    #def tuto_bomb(self):
+
     # Function to run the game
     def run(self, difficulty, player):
         if difficulty == 'tuto':
-            self.tuto()
-
+            self.tuto_fruit()
+            self.tuto_strike()
+            self.tuto_combo()
+            self.tuto_ice()
+            self.tuto_bomb()
         while not self.game_over:
             # Background
             screen.blit(BACKGROUND_IMAGE, (0, 0))
