@@ -292,7 +292,7 @@ class FruitSlicerGame:
                 if event.type == pygame.QUIT:
                     pygame.quit()
 
-            if self.missed_fruits == 1 and not self.fruits:
+            if self.missed_fruits > 1 and not self.fruits:
                 tuto_strike_text = font.render("If you miss a fruit, it's going to be considered as a strike", True, BLACK)
                 screen.blit(tuto_strike_text, (100, 100))
                 pygame.display.flip()
