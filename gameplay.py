@@ -1,4 +1,3 @@
-from math import fabs
 import time
 import pygame
 import random
@@ -12,6 +11,7 @@ clock = pygame.time.Clock()
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 
 # Window Dimension
 SCREEN_WIDTH = 800
@@ -191,13 +191,13 @@ class FruitSlicerGame:
                 letter = fruit["letter"].lower()
                 if letter in combo_letters and combo_letters[letter] > 1:
                     COMBO_SOUND.play()
-                    text = font.render(f"Combo! x{combo_letters[letter]}", True, BLACK)
+                    text = font.render(f"Combo! x{combo_letters[letter]}", True, WHITE)
                     screen.blit(text,(fruit["position_x"]+50, fruit["position_y"]+50))
                     self.player_score += combo_letters[letter]-1
                 # If it's a bomb, the game is over
                 if fruit["image"] == FRUIT_IMAGES["bomb"]:
                     BOMB_SOUND.play()
-                    game_over_text = font.render("Game Over ! You sliced a bomb", True, BLACK)
+                    game_over_text = font.render("Game Over ! You sliced a bomb", True, WHITE)
                     screen.blit(game_over_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2))
                     pygame.display.flip()
                     pygame.time.wait(2000)
@@ -231,7 +231,7 @@ class FruitSlicerGame:
             new_rect = rotated_image.get_rect(center=fruit["image"].get_rect(topleft=(fruit["position_x"], fruit["position_y"])).center)
 
             screen.blit(rotated_image, new_rect.topleft)
-            text = font.render(fruit["letter"], True, BLACK)
+            text = font.render(fruit["letter"], True, WHITE)
             screen.blit(text, (fruit["position_x"] + 25, fruit["position_y"] + 25))
 
         # Draw the explosions
@@ -286,13 +286,15 @@ class FruitSlicerGame:
             self.update_fruits()
             self.draw_fruits()
             pygame.display.flip()
+            missed_text = font.render(f"Strike : {self.missed_fruits}", True, BLACK)
+            screen.blit(missed_text, (10, 40))
             clock.tick(30)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
 
-            if self.missed_fruits > 1 and not self.fruits:
+            if 2 >= self.missed_fruits > 0 and not self.fruits:
                 tuto_strike_text = font.render("If you miss a fruit, it's going to be considered as a strike", True, BLACK)
                 screen.blit(tuto_strike_text, (100, 100))
                 pygame.display.flip()
@@ -307,7 +309,7 @@ class FruitSlicerGame:
                 self.game_over = True
                 return
                 
-
+            
     def tuto_combo(self):
         screen.blit(BACKGROUND_IMAGE, (0,0))
         self.tuto_freeze = False
@@ -435,6 +437,7 @@ class FruitSlicerGame:
             self.tuto_combo()
             self.tuto_ice()
             self.tuto_bomb()
+            return
         else:
             while not self.game_over:
                 # Background

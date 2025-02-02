@@ -299,7 +299,6 @@ def scores_reset():
     
 # Main menu
 def menu_main():
-    play('tuto','tuto')
     player = menu_player(0,0)
     gamemode = menu_gamemode(0,0)
     difficulty = menu_difficulty(0,0)
