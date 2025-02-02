@@ -312,7 +312,8 @@ def menu_main():
         text_display("Press 3 to change the difficulty",50,200,BLACK)
         text_display("Press 4 to change the player",50,250,BLACK)
         text_display("Press 5 to change the gamemode",50,300,BLACK)
-        text_display("Press 6 to quit",50,350,BLACK)
+        text_display("Press 6 to go to the tutorial",50,350,BLACK)
+        text_display("Press 7 to quit",50,400,BLACK)
         pygame.display.flip()
         
         for event in pygame.event.get():
@@ -331,42 +332,11 @@ def menu_main():
                 if event.key == pygame.K_5:
                     gamemode = menu_gamemode(1,gamemode)
                 if event.key == pygame.K_6:
+                    play('tuto','tuto')
+                if event.key == pygame.K_7:
                     pygame.quit()
                     return
         clock.tick(30)
-
-# Fruits generate
-def generate_item(count = 1):
-    types_of_fruits = list(fruit_images.keys())
-    for _ in range(count):
-        x = random.randint(0, WIDTH - 50)
-        y = random.randint(50, HEIGHT - 50)
-        letter = chr(random.randint(65, 90))
-        fruit_type = random.choice(types_of_fruits)
-
-        fruits.append({
-            "x": x, 
-            "y": y, 
-            "letter": letter,
-            "image": fruit_images[fruit_type]
-        })
-
-# Draw the fruits
-def item_display():
-    for fruit in fruits:
-        screen.blit(fruit["image"], (fruit["x"], fruit["y"]))
-        text = FONT.render(fruit["letter"], True, BLACK)
-        screen.blit(text, (fruit["x"] + 15, fruit["y"] + 15))
-
-# Check the key pressed
-def item_check(key, player_score, missed_fruits):
-    for item in fruits:
-        if key == ord(item["letter"].lower()):
-            fruits.remove(item)
-            player_score += 1
-            return 
-        else:
-            missed_fruits += 1
 
 # Function to save score from the game
 def save_scores(player, difficulty, player_score):
@@ -391,10 +361,13 @@ def play(player, difficulty):
             sound_play.play(-1)
 
     game = FruitSlicerGame(difficulty,player)
-    final_score = game.run(difficulty,player)
+    if difficulty == 'tuto':
+        game.run(difficulty,player)
+    else:
+        final_score = game.run(difficulty,player)
 
     # Save the score
-    save_scores(player, difficulty, final_score)
+        save_scores(player, difficulty, final_score)
 
     if sound_play:
         sound_play.stop()
