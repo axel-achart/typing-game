@@ -300,7 +300,6 @@ def scores_reset():
 # Main menu
 def menu_main():
     player = menu_player(0,0)
-    gamemode = menu_gamemode(0,0)
     difficulty = menu_difficulty(0,0)
     clock = pygame.time.Clock()
     while True:
@@ -310,9 +309,8 @@ def menu_main():
         text_display("Press 2 to see the scores",50,150,BLACK)
         text_display("Press 3 to change the difficulty",50,200,BLACK)
         text_display("Press 4 to change the player",50,250,BLACK)
-        text_display("Press 5 to change the gamemode",50,300,BLACK)
-        text_display("Press 6 to go to the tutorial",50,350,BLACK)
-        text_display("Press 7 to quit",50,400,BLACK)
+        text_display("Press 5 to go to the tutorial",50,350,BLACK)
+        text_display("Press 6 to quit",50,400,BLACK)
         pygame.display.flip()
         
         for event in pygame.event.get():
@@ -329,10 +327,8 @@ def menu_main():
                 if event.key == pygame.K_4:
                     player = menu_player(1,player)
                 if event.key == pygame.K_5:
-                    gamemode = menu_gamemode(1,gamemode)
-                if event.key == pygame.K_6:
                     play('tuto','tuto')
-                if event.key == pygame.K_7:
+                if event.key == pygame.K_6:
                     pygame.quit()
                     return
         clock.tick(30)
