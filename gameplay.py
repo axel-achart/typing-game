@@ -14,8 +14,8 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
 # Window Dimension
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1130
+SCREEN_HEIGHT = 648
 
 # Display Window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

@@ -16,8 +16,8 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
 # Window Dimension
-WIDTH = 800
-HEIGHT =  600
+WIDTH = 1130
+HEIGHT = 648
 
 # Font and text
 FONT = pygame.font.Font(None, 40)
@@ -38,6 +38,10 @@ fruit_images = {
     "pear":pygame.image.load(r"media\img\pear.png"),
     "watermelon":pygame.image.load(r"media\img\watermelon.png"),
 }
+
+# Background Menu loading
+BACKGROUND_MENU = pygame.image.load(r"media\img\backgroundmenu.png")
+BACKGROUND_MENU = pygame.transform.scale(BACKGROUND_MENU, (WIDTH, HEIGHT))
 
 # Sounds loading
 try:
@@ -60,7 +64,7 @@ def text_display(text, x, y, color):
 def menu_player(ready,current_player):
     clock = pygame.time.Clock()
     while True:
-        screen.fill(WHITE)
+        screen.blit(BACKGROUND_MENU, (0, 0))
         text_display("Welcome, Please choose your Player Name",50,50,BLACK)
         text_display("Press 1 to choose from a known Player Name",50,100,BLACK)
         text_display("Press 2 to create a Player Name",50,150,BLACK)
@@ -87,7 +91,6 @@ def menu_player(ready,current_player):
 
 # Function to choose a player from the list
 def menu_player_known():
-    screen.fill(WHITE)
     clock = pygame.time.Clock()
     players = list(scores_load().keys())
     players_per_page = 10
@@ -95,9 +98,10 @@ def menu_player_known():
     total_pages = (len(players)+players_per_page - 1) // players_per_page
     if players:
         while True:
+            pygame.display.flip()
+            screen.blit(BACKGROUND_MENU, (0, 0))
             index_start = current_page * players_per_page
             index_end = index_start + players_per_page
-            screen.fill(WHITE)
             for i, player in enumerate(players[index_start:index_end]):
                 text_display(f"Player {i}:{player}",50, 100 +50*i,BLACK)
             text_display("Welcome, Please choose your Player Name",50,50,BLACK)
@@ -128,6 +132,8 @@ def menu_player_known():
                             current_page+=1                   
             clock.tick(30)
     else:
+        pygame.display.flip()
+        screen.blit(BACKGROUND_MENU, (0, 0))
         text_display("No player found",250,250,BLACK)
         pygame.display.flip()
         pygame.time.wait(1500)
@@ -135,11 +141,13 @@ def menu_player_known():
 
 # Function to create a new player
 def menu_player_new():
-    screen.fill(WHITE)
+    pygame.display.flip()
+    screen.blit(BACKGROUND_MENU, (0, 0))
     clock = pygame.time.Clock()
     player = ''
     while True:
-        screen.fill(WHITE)
+        pygame.display.flip()
+        screen.blit(BACKGROUND_MENU, (0, 0))
         text_display("Add a new player",50,50,BLACK)
         text_display("Type your username",50,100,BLACK)
         text_display(f"{player}",50,150,BLACK)
@@ -166,7 +174,8 @@ def menu_player_new():
 
 # Function to add a player in scores.json
 def menu_player_add(player):
-    screen.fill(WHITE)
+    pygame.display.flip()
+    screen.blit(BACKGROUND_MENU, (0, 0))
     scores = scores_load()
     if player not in scores:
         scores[player]={"easy":[], "medium":[], "hard":[]}
@@ -175,7 +184,8 @@ def menu_player_add(player):
 
 # Function to choose the difficulty
 def menu_difficulty(ready,current_difficulty):
-    screen.fill(WHITE)
+    pygame.display.flip()
+    screen.blit(BACKGROUND_MENU, (0, 0))
     clock = pygame.time.Clock()
     while True:
         text_display("Please choose the difficulty",50,50,BLACK)
@@ -201,45 +211,18 @@ def menu_difficulty(ready,current_difficulty):
                         return current_difficulty
         clock.tick(30)
 
-# Function to choose the gamemode
-def menu_gamemode(ready,current_gamemode):
-    screen.fill(WHITE)
-    clock = pygame.time.Clock()
-    while True:
-        screen.fill(WHITE)
-        text_display("Please choose the gamemode",50,50,BLACK)
-        text_display("Press 1 for mode.1",50,HEIGHT-200,BLACK)
-        text_display("Press 2 for mode.2",50,HEIGHT-150,BLACK)
-        text_display("Press 3 for mode.3",50,HEIGHT-100,BLACK)
-        text_display("Press ESCAPE if you want to keep your set gamemode",50,HEIGHT-50,BLACK)
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    return 'mode.1'
-                elif event.key == pygame.K_2:
-                    return 'mode.2'
-                elif event.key == pygame.K_3:
-                    return 'mode.3'
-                if ready == 1:
-                    if event.key == pygame.K_ESCAPE:
-                        return current_gamemode
-        clock.tick(30)
-
 # Function to display the scoreboard
 def menu_scores():
-    screen.fill(WHITE)
+    pygame.display.flip()
+    screen.blit(BACKGROUND_MENU, (0, 0))
     clock = pygame.time.Clock()
     scores = scores_load()
     players_per_page = 1
     current_page = 0
     total_pages = (len(scores)+players_per_page - 1) // players_per_page
     while True:
-        screen.fill(WHITE)
+        pygame.display.flip()
+        screen.blit(BACKGROUND_MENU, (0, 0))
         text_display("Scoreboard",50,50, BLACK)
         index_start = current_page * players_per_page
         index_end = index_start + players_per_page
@@ -303,7 +286,8 @@ def menu_main():
     difficulty = menu_difficulty(0,0)
     clock = pygame.time.Clock()
     while True:
-        screen.fill(WHITE)
+        pygame.display.flip()
+        screen.blit(BACKGROUND_MENU, (0, 0))
         text_display("Fruit Slicer",50,50,BLACK)
         text_display("Press 1 to play",50,100,BLACK)
         text_display("Press 2 to see the scores",50,150,BLACK)
